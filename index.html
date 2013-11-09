@@ -1,0 +1,459 @@
+<!doctype html>
+
+<html>
+	<!-- Built with Divshot - http://www.divshot.com -->
+
+	<head>
+		<title>#HackZagreb | City of Zagreb, Croatia Hackathon</title>
+		<meta name="viewport" content="width=device-width">
+		<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+		<script type="text/javascript">
+			var fnames = new Array();
+			var ftypes = new Array();
+			fnames[0] = 'EMAIL';
+			ftypes[0] = 'email';
+			try {
+				var jqueryLoaded = jQuery;
+				jqueryLoaded = true;
+			} catch(err) {
+				var jqueryLoaded = false;
+			}
+			var head = document.getElementsByTagName('head')[0];
+			if (!jqueryLoaded) {
+				var script = document.createElement('script');
+				script.type = 'text/javascript';
+				script.src = '//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js';
+				head.appendChild(script);
+				if (script.readyState && script.onload !== null) {
+					script.onreadystatechange = function() {
+						if (this.readyState == 'complete')
+							mce_preload_check();
+					}
+				}
+			}
+
+			var err_style = '';
+			try {
+				err_style = mc_custom_error_style;
+			} catch(e) {
+				err_style = '#mc_embed_signup input.mce_inline_error{border-color:#6B0505;} #mc_embed_signup div.mce_inline_error{margin: 0 0 1em 0; padding: 5px 10px; background-color:#6B0505; font-weight: bold; z-index: 1; color:#fff;}';
+			}
+			var head = document.getElementsByTagName('head')[0];
+			var style = document.createElement('style');
+			style.type = 'text/css';
+			if (style.styleSheet) {
+				style.styleSheet.cssText = err_style;
+			} else {
+				style.appendChild(document.createTextNode(err_style));
+			}
+			head.appendChild(style);
+			setTimeout('mce_preload_check();', 250);
+
+			var mce_preload_checks = 0;
+			function mce_preload_check() {
+				if (mce_preload_checks > 40)
+					return;
+				mce_preload_checks++;
+				try {
+					var jqueryLoaded = jQuery;
+				} catch(err) {
+					setTimeout('mce_preload_check();', 250);
+					return;
+				}
+				var script = document.createElement('script');
+				script.type = 'text/javascript';
+				script.src = 'http://downloads.mailchimp.com/js/jquery.form-n-validate.js';
+				head.appendChild(script);
+				try {
+					var validatorLoaded = jQuery("#fake-form").validate({});
+				} catch(err) {
+					setTimeout('mce_preload_check();', 250);
+					return;
+				}
+				mce_init_form();
+			}
+
+			function mce_init_form() {
+				jQuery(document).ready(function($) {
+					var options = {
+						errorClass : 'mce_inline_error',
+						errorElement : 'div',
+						onkeyup : function() {
+						},
+						onfocusout : function() {
+						},
+						onblur : function() {
+						}
+					};
+					var mce_validator = $("#mc-embedded-subscribe-form").validate(options);
+					$("#mc-embedded-subscribe-form").unbind('submit');
+					//remove the validator so we can get into beforeSubmit on the ajaxform, which then calls the validator
+					options = {
+						url : 'http://CustomerDevLabs.us6.list-manage.com/subscribe/post-json?u=7de22f15c9e97df7b49df664f&id=25f38c75ad&c=?',
+						type : 'GET',
+						dataType : 'json',
+						contentType : "application/json; charset=utf-8",
+						beforeSubmit : function() {
+							$('#mce_tmp_error_msg').remove();
+							$('.datefield', '#mc_embed_signup').each(function() {
+								var txt = 'filled';
+								var fields = new Array();
+								var i = 0;
+								$(':text', this).each(function() {
+									fields[i] = this;
+									i++;
+								});
+								$(':hidden', this).each(function() {
+									var bday = false;
+									if (fields.length == 2) {
+										bday = true;
+										fields[2] = {
+											'value' : 1970
+										};
+										//trick birthdays into having years
+									}
+									if (fields[0].value == 'MM' && fields[1].value == 'DD' && (fields[2].value == 'YYYY' || (bday && fields[2].value == 1970) )) {
+										this.value = '';
+									} else if (fields[0].value == '' && fields[1].value == '' && (fields[2].value == '' || (bday && fields[2].value == 1970) )) {
+										this.value = '';
+									} else {
+										if (/\[day\]/.test(fields[0].name)) {
+											this.value = fields[1].value + '/' + fields[0].value + '/' + fields[2].value;
+										} else {
+											this.value = fields[0].value + '/' + fields[1].value + '/' + fields[2].value;
+										}
+									}
+								});
+							});
+							$('.phonefield-us', '#mc_embed_signup').each(function() {
+								var fields = new Array();
+								var i = 0;
+								$(':text', this).each(function() {
+									fields[i] = this;
+									i++;
+								});
+								$(':hidden', this).each(function() {
+									if (fields[0].value.length != 3 || fields[1].value.length != 3 || fields[2].value.length != 4) {
+										this.value = '';
+									} else {
+										this.value = 'filled';
+									}
+								});
+							});
+							return mce_validator.form();
+						},
+						success : mce_success_cb
+					};
+					$('#mc-embedded-subscribe-form').ajaxForm(options);
+
+				});
+			}
+
+			function mce_success_cb(resp) {
+				$('#mce-success-response').hide();
+				$('#mce-error-response').hide();
+				if (resp.result == "success") {
+					$('#mce-' + resp.result + '-response').show();
+					$('#mce-' + resp.result + '-response').html(resp.msg);
+					$('#mc-embedded-subscribe-form').each(function() {
+						this.reset();
+					});
+				} else {
+					var index = -1;
+					var msg;
+					try {
+						var parts = resp.msg.split(' - ', 2);
+						if (parts[1] == undefined) {
+							msg = resp.msg;
+						} else {
+							i = parseInt(parts[0]);
+							if (i.toString() == parts[0]) {
+								index = parts[0];
+								msg = parts[1];
+							} else {
+								index = -1;
+								msg = resp.msg;
+							}
+						}
+					} catch(e) {
+						index = -1;
+						msg = resp.msg;
+					}
+					try {
+						if (index == -1) {
+							$('#mce-' + resp.result + '-response').show();
+							$('#mce-' + resp.result + '-response').html(msg);
+						} else {
+							err_id = 'mce_tmp_error_msg';
+							html = '<div id="' + err_id + '" style="' + err_style + '"> ' + msg + '</div>';
+
+							var input_id = '#mc_embed_signup';
+							var f = $(input_id);
+							if (ftypes[index] == 'address') {
+								input_id = '#mce-' + fnames[index] + '-addr1';
+								f = $(input_id).parent().parent().get(0);
+							} else if (ftypes[index] == 'date') {
+								input_id = '#mce-' + fnames[index] + '-month';
+								f = $(input_id).parent().parent().get(0);
+							} else {
+								input_id = '#mce-' + fnames[index];
+								f = $().parent(input_id).get(0);
+							}
+							if (f) {
+								$(f).append(html);
+								$(input_id).focus();
+							} else {
+								$('#mce-' + resp.result + '-response').show();
+								$('#mce-' + resp.result + '-response').html(msg);
+							}
+						}
+					} catch(e) {
+						$('#mce-' + resp.result + '-response').show();
+						$('#mce-' + resp.result + '-response').html(msg);
+					}
+				}
+			}
+
+		</script>
+	</head>
+
+	<body>
+		<div id="fb-root"></div>
+		<script>
+			( function(d, s, id) {
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id))
+						return;
+					js = d.createElement(s);
+					js.id = id;
+					js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=143942202338985";
+					fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));
+		</script>
+		<div class="container" style="margin-bottom:40px">
+			<center>
+				<div style="font-size:4.0em">
+					<b><a href="http://customerdevlabs.com" target="_blank" style="color:black">#HackZagreb</a></b>
+					<div class="fb-like" data-href="http://customerdevlabs.com" data-width="The pixel width of the plugin" data-height="The pixel height of the plugin" data-colorscheme="light" data-layout="button_count" data-action="like" data-show-faces="false" data-send="true"></div>
+				</div>
+				<div style="font-size:2.5em; text-align:center">
+					City of Zagreb Hackathon
+				</div>
+			</center>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8">
+					<!--					<iframe width="100%" height="450px" src="http://www.youtube.com/embed/cyzyheC8Vbc" frameborder="0" allowfullscreen></iframe>-->
+					<div>
+
+						<h3>What is #HackZagreb</h3>
+						A <a href="http://en.wikipedia.org/wiki/Hackathon" target="_blank">hackathon</a> dedicated to building software for the people of Zagreb...by the people of Zagreb! <p></p>
+						A civic Hackathon organized by the <a href="fi.co" target="_blank">Founder Institute Zagreb</a> and <a href="http://raza-tpz.hr/" target="_blank">Development Agency of the City of Zagreb</a> to bring together citizens, entrepreneurs and developers to solve challenges relevant to the citizens of the City of Zagreb. The goal is to collaboratively create and build solutions using publicly released data, code and technology.
+
+						<h3>Combine design and coding with food, prizes and a desire to help the people of Zagreb:</h3>
+
+						<ul>
+							<li>
+								10:00: Hackers, designers, artists, environmentalists, etc show up
+							</li>
+							<li>
+								10:05: Decide what they want to build
+							</li>
+							<li>
+								10:30: Start building
+							</li>
+							<li>
+								13:00: Eat lunch (free)
+							</li>
+							<li>
+								13:10: Keep building
+							</li>
+							<li>
+								18:00: Eat dinner (free)
+							</li>
+							<li>
+								18:10: Final touches
+							</li>
+							<li>
+								20:00: Presentations of finished projects
+							</li>
+							<li>
+								21:00: Prizes awarded
+							</li>
+						</ul>
+
+						<h3>Prizes are Awarded to the Top 3 Teams:</h3>
+
+						<ul>
+							<li>
+								One year co-working space at the Development Agency of Zagreb
+							</li>
+							<li>
+								50 hours of consultancy support
+							</li>
+							<li>
+								A seminar from the selection of entrepreneurial seminars given by the Agency
+							</li>
+						</ul>
+
+						<center>
+							<div>
+								<h3>Want to come to...<b>the next #HackZagreb?</b></h3>
+							</div>
+
+							<!-- Begin MailChimp Signup Form -->
+							<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+							<style type="text/css">
+								#mc_embed_signup {
+									background: #fff;
+									clear: left;
+									font: 14px Helvetica, Arial, sans-serif;
+								}
+								/* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+								 We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+							</style>
+							<div id="mc_embed_signup">
+								<form action="http://CustomerDevLabs.us6.list-manage.com/subscribe/post?u=7de22f15c9e97df7b49df664f&amp;id=25f38c75ad" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+									<div class="mc-field-group">
+										<input type="email" value="" name="EMAIL" class="required email input-lg col-sp-10" id="mce-EMAIL" placeholder="your@email.com">
+										<input type="submit" value="Email Me" name="subscribe" id="mc-embedded-subscribe" class="button btn btn-lg btn-primary">
+									</div>
+									<div id="mce-responses" class="clear">
+										<div class="response" id="mce-error-response" style="display:none"></div>
+										<div class="response" id="mce-success-response" style="display:none"></div>
+									</div>
+									<div class="clear"></div>
+								</form>
+							</div>
+							<!--End mc_embed_signup-->
+
+						</center>
+
+						<h3>Who Picks the Winner?</h3>
+
+						<ul>
+							<li>
+								Ivan Bronzin
+							</li>
+							<li>
+								Pedja Pušelja
+							</li>
+							<li>
+								<b>Most Importantly:</b> The Citizens of Zagreb
+							</li>
+						</ul>
+
+						The final presentations will be broadcast Live for the citizens of Zagreb to see the projects built. People watching the live stream will vote on the projects they like the best.
+
+						<h3>Why do People Do This?</h3>
+
+						<ol>
+							<li>
+								They want to build stuff
+							</li>
+							<li>
+								They want to meet, and work with, smart people
+							</li>
+							<li>
+								They want to help Zagreb
+							</li>
+							<li>
+								They want some pretty cool prizes
+							</li>
+							<li>
+								They like free food
+							</li>
+						</ol>
+
+						<h3>How much does it cost?</h3>
+
+						Thanks to our incredible sponsors: <a href="fi.co" target="_blank">Founder Institute Zagreb</a> and <a href="http://raza-tpz.hr/" target="_blank">Development Agency of the City of Zagreb</a>... <p></p>
+
+						The entire event is free! Free food, free internets, free prizes, free fun.
+
+						<h3>Should you Come to the Next #HackZagreb?</h3>
+
+						Are you a designer, developer, architect, environmentalis, artist, scientist...or a citizen of Zagreb? If so, <b>YES</b>! <p></p>
+						We welcome anyone who is interested in building something to help the people of Zagreb.
+
+						<center>
+							<div>
+								<h3>Want to come to...<b>the next #HackZagreb?</b></h3>
+							</div>
+
+							<!-- Begin MailChimp Signup Form -->
+							<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+							<style type="text/css">
+								#mc_embed_signup {
+									background: #fff;
+									clear: left;
+									font: 14px Helvetica, Arial, sans-serif;
+								}
+								/* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+								 We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+							</style>
+							<div id="mc_embed_signup">
+								<form action="http://CustomerDevLabs.us6.list-manage.com/subscribe/post?u=7de22f15c9e97df7b49df664f&amp;id=25f38c75ad" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+									<div class="mc-field-group">
+										<input type="email" value="" name="EMAIL" class="required email input-lg col-sp-10" id="mce-EMAIL" placeholder="your@email.com">
+										<input type="submit" value="Email Me" name="subscribe" id="mc-embedded-subscribe" class="button btn btn-lg btn-primary">
+									</div>
+									<div id="mce-responses" class="clear">
+										<div class="response" id="mce-error-response" style="display:none"></div>
+										<div class="response" id="mce-success-response" style="display:none"></div>
+									</div>
+									<div class="clear"></div>
+								</form>
+							</div>
+							<!--End mc_embed_signup-->
+
+						</center>
+
+						<!--						<h1>Where?</h1>
+
+						<h1>When</h1>
+						-->
+					</div>
+
+				</div>
+				<div class="col-md-4">
+					<a class="twitter-timeline" data-dnt="true" href="https://twitter.com/search?q=hackzagreb" data-widget-id="398951904199204865">Tweets about "hackzagreb"</a>
+					<script>
+						! function(d, s, id) {
+							var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+							if (!d.getElementById(id)) {
+								js = d.createElement(s);
+								js.id = id;
+								js.src = p + "://platform.twitter.com/widgets.js";
+								fjs.parentNode.insertBefore(js, fjs);
+							}
+						}(document, "script", "twitter-wjs");
+					</script>
+
+					<h1>Come back at 20:00!</h1>
+
+					Teams will be present their projects and...<b>you'll get to vote on the winner!</b>
+					<p></p>
+					Your support will be fantastic for the teams, and you'll get to see new products being built for you.
+
+					<h1>Sponsors</h1>
+
+					<center>
+						<a href="http://raza-tpz.hr/" target="_blank"><img src="img/RAZ logo vertical.png" width="200px"></a>
+						<a href="fi.co" target="_blank"><img src="img/founderinstitute_logo.png" width="200px"></a>
+					</center>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8"></div>
+				<div class="col-md-4"></div>
+			</div>
+		</div>
+	</body>
+
+</html>
